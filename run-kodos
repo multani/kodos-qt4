@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import kodos
+
+if __name__ == '__main__':
+    kodos.run()
