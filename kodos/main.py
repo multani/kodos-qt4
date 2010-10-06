@@ -2,7 +2,9 @@ import sys
 
 from PyQt4.QtGui import QApplication, QMainWindow
 
+from kodos import widgets
 from kodos.ui.ui_main import Ui_MainWindow
+
 
 
 class KodosMainWindow(QMainWindow, Ui_MainWindow):
@@ -14,6 +16,10 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         # Trigger the textChanged signal
         for widget in [self.regexText, self.searchText, self.replaceText]:
             widget.setPlainText('')
+
+    def setupUi(self, *args, **kwargs):
+        super(KodosMainWindow, self).setupUi(*args, **kwargs)
+        self.statusbar = widgets.StatusBar(self._statusbar)
 
     def connectActions(self):
         # Connect input widgets to update the GUI when their text change
@@ -27,9 +33,11 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         if regex == "" or search == "":
             self.statusbar.showMessage(
-                "Please enter a regex and a search to work on")
+                "Enter a regular expression and a string to match against")
+            self.statusbar.setIndicator('warning')
         else:
-            self.statusbar.clearMessage()
+            self.statusbar.showMessage("")
+            self.statusbar.setIndicator('ok')
 
 
 def run(args=None):
