@@ -1,3 +1,4 @@
+import re
 import sys
 
 from PyQt4.QtGui import QApplication, QMainWindow
@@ -27,17 +28,30 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
             widget.textChanged.connect(self.on_compute_regex)
 
     def on_compute_regex(self):
-        regex = self.regexText.toPlainText()
-        search = self.searchText.toPlainText()
-        replace = self.replaceText.toPlainText()
+        regex   = str(self.regexText.toPlainText().toUtf8())
+        search  = str(self.searchText.toPlainText().toUtf8())
+        replace = str(self.replaceText.toPlainText().toUtf8())
 
         if regex == "" or search == "":
             self.statusbar.showMessage(
                 "Enter a regular expression and a string to match against")
             self.statusbar.setIndicator('warning')
-        else:
-            self.statusbar.showMessage("")
-            self.statusbar.setIndicator('ok')
+            return
+
+        # We can compile the regex
+        # TODO: check the error at compilation
+        r = re.compile(regex)
+        match = r.match(search)
+        if match is None:
+            self.statusbar.showMessage("Pattern does not match")
+            self.statusbar.setIndicator('error')
+            return
+
+        # The regex match the input!
+        self.statusbar.showMessage("Pattern matches (found %d match)" %
+                                   len(r.findall(search)))
+        self.statusbar.setIndicator('ok')
+
 
 
 def run(args=None):
