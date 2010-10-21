@@ -1,0 +1,20 @@
+Kodos-Qt4
+=========
+
+What is Kodos?
+--------------
+
+Kodos is a regex text editor oriented toward Python, written by Phil Schwartz
+using Python and PyQt3. You can find this original project at
+http://kodos.sourceforge.net/
+
+What is Kodos-Qt4?
+------------------
+
+"Kodos-Qt4", as it is currently named, is an effort to rewrite the original
+software using the newest PyQt4 library. It aims to give the same level of
+functionalities at the original version.
+
+I'm an avid user of Kodos, and as it was the latest software on my computer
+which was using Qt3, I thought it was a nice idea to give it a new life; also, I
+wanted for a long time to give PyQt4 a try, so, here it is!
