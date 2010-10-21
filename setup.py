@@ -2,6 +2,6 @@ from setuptools import setup
 
 
 setup(
-    name='kodos',
-    version='1.9.0dev',
+    name='kodos-qt4',
+    version='0.1',
 )
