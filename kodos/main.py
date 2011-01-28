@@ -42,7 +42,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         # We can compile the regex
         # TODO: check the error at compilation
         r = re.compile(regex)
-        match = r.match(search)
+        match = r.search(search)
         if match is None:
             self.statusbar.showMessage("Pattern does not match")
             self.statusbar.setIndicator('error')
