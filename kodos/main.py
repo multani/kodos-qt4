@@ -51,15 +51,12 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
             return
 
         # The regex match the input!
-        self.matchNumberBox.setMinimum(1)
         self.matchText.setPlainText(search)
         self.matchAllText.setPlainText(search)
-
 
         # Compute results in the various result panels
         for i, match in enumerate(r.finditer(search)):
             # Update the select match number widget
-            self.matchNumberBox.setMaximum(i + 1)
 
             # Update the matchAll text widget
             format = QTextCharFormat()
@@ -73,6 +70,8 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
                 match.end() - match.start())
             cursor.setCharFormat(format)
 
+        self.matchNumberBox.setRange(1, i + 1)
+        self.matchNumberBox.valueChanged.emit(self.matchNumberBox.value())
 
         self.statusbar.setIndicator('ok')
         self.statusbar.showMessage("Pattern matches (found %d match)" % (i + 1))
