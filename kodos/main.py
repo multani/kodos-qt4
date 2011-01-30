@@ -28,6 +28,8 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         for widget in [self.regexText, self.searchText, self.replaceText]:
             widget.textChanged.connect(self.on_compute_regex)
 
+        self.matchNumberBox.valueChanged.connect(self.on_match_number_change)
+
     def on_compute_regex(self):
         regex   = str(self.regexText.toPlainText().toUtf8())
         search  = str(self.searchText.toPlainText().toUtf8())
@@ -74,6 +76,36 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         self.statusbar.setIndicator('ok')
         self.statusbar.showMessage("Pattern matches (found %d match)" % (i + 1))
+
+    def on_match_number_change(self, match_number):
+        # Set default format on the whole text before highlighting the selected
+        # match.
+        cursor = QTextCursor(self.matchText.document())
+        cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+        cursor.setCharFormat(QTextCharFormat())
+
+
+        # TODO: this needs to be refactored with the on_compute_regex() method
+        # to avoid duplication.
+        regex   = str(self.regexText.toPlainText().toUtf8())
+        search  = str(self.searchText.toPlainText().toUtf8())
+        r = re.compile(regex)
+        for i, match in enumerate(r.finditer(search)):
+            if i+1 != match_number:
+                continue
+
+            format = QTextCharFormat()
+            format.setForeground(QColor('blue'))
+
+            cursor = QTextCursor(self.matchText.document())
+            cursor.setPosition(match.start())
+            cursor.movePosition(
+                QTextCursor.NextCharacter,
+                QTextCursor.KeepAnchor,
+                match.end() - match.start())
+            cursor.setCharFormat(format)
+
+            break
 
 
 def run(args=None):
