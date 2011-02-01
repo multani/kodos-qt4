@@ -14,6 +14,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         super(KodosMainWindow, self).__init__(parent)
         self.setupUi(self)
 
+        # This is the current regex object
         self.regex = None
         self.matchFormat = QTextCharFormat()
         self.matchFormat.setForeground(QColor('blue'))
@@ -31,9 +32,9 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
     def connectActions(self):
         # Connect input widgets to update the GUI when their text change
         for widget in [self.regexText, self.searchText, self.replaceText]:
-            widget.textChanged.connect(self.on_compute_regex)
+            widget.textChanged.connect(self.onComputeRegex)
 
-        self.matchNumberBox.valueChanged.connect(self.on_match_number_change)
+        self.matchNumberBox.valueChanged.connect(self.onMatchNumberChange)
 
     def getSearchText(self):
         """Shortcut to retrieve the serach text"""
@@ -51,7 +52,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
             match.end() - match.start())
         cursor.setCharFormat(self.matchFormat)
 
-    def on_compute_regex(self):
+    def onComputeRegex(self):
         regex   = str(self.regexText.toPlainText().toUtf8())
         search  = self.getSearchText()
         replace = str(self.replaceText.toPlainText().toUtf8())
@@ -91,7 +92,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.statusbar.setIndicator('ok')
         self.statusbar.showMessage("Pattern matches (found %d match)" % (i + 1))
 
-    def on_match_number_change(self, match_number):
+    def onMatchNumberChange(self, matchNumber):
         # Set default format on the whole text before highlighting the selected
         # match.
         document = self.matchText.document()
@@ -101,7 +102,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         search = self.getSearchText()
         for i, match in enumerate(self.regex.finditer(search)):
-            if i + 1 == match_number:
+            if i + 1 == matchNumber:
                 self.formatMatchedText(document, match)
                 break
 
