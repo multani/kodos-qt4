@@ -81,14 +81,15 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         # Compute results in the various result panels
         for i, match in enumerate(self.regex.finditer(search)):
-            # Update the matchAll text widget
             self.formatMatchedText(self.matchAllText.document(), match)
 
-        self.matchNumberBox.setRange(1, i + 1)
+        nbMatches = i + 1
+        self.matchNumberBox.setRange(1, nbMatches)
         self.matchNumberBox.valueChanged.emit(self.matchNumberBox.value())
 
         self.statusbar.setIndicator('ok')
-        self.statusbar.showMessage("Pattern matches (found %d match)" % (i + 1))
+        self.statusbar.showMessage(
+            "Pattern matches (found %d match)" % nbMatches)
 
     def onComputeRegex(self):
         regex   = str(self.regexText.toPlainText().toUtf8())
