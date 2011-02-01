@@ -13,6 +13,11 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(KodosMainWindow, self).__init__(parent)
         self.setupUi(self)
+
+        self.regex = None
+        self.matchFormat = QTextCharFormat()
+        self.matchFormat.setForeground(QColor('blue'))
+
         self.connectActions()
 
         # Trigger the textChanged signal
@@ -30,9 +35,25 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         self.matchNumberBox.valueChanged.connect(self.on_match_number_change)
 
+    def getSearchText(self):
+        """Shortcut to retrieve the serach text"""
+
+        return str(self.searchText.toPlainText().toUtf8())
+
+    def formatMatchedText(self, document, match):
+        """Format the matched text in a document"""
+
+        cursor = QTextCursor(document)
+        cursor.setPosition(match.start())
+        cursor.movePosition(
+            QTextCursor.NextCharacter,
+            QTextCursor.KeepAnchor,
+            match.end() - match.start())
+        cursor.setCharFormat(self.matchFormat)
+
     def on_compute_regex(self):
         regex   = str(self.regexText.toPlainText().toUtf8())
-        search  = str(self.searchText.toPlainText().toUtf8())
+        search  = self.getSearchText()
         replace = str(self.replaceText.toPlainText().toUtf8())
 
         if regex == "" or search == "":
@@ -46,9 +67,12 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         r = re.compile(regex)
         match = r.search(search)
         if match is None:
+            self.regex = None
             self.statusbar.showMessage("Pattern does not match")
             self.statusbar.setIndicator('error')
             return
+
+        self.regex = r
 
         # The regex match the input!
         self.matchText.setPlainText(search)
@@ -59,16 +83,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
             # Update the select match number widget
 
             # Update the matchAll text widget
-            format = QTextCharFormat()
-            format.setForeground(QColor('blue'))
-
-            cursor = QTextCursor(self.matchAllText.document())
-            cursor.setPosition(match.start())
-            cursor.movePosition(
-                QTextCursor.NextCharacter,
-                QTextCursor.KeepAnchor,
-                match.end() - match.start())
-            cursor.setCharFormat(format)
+            self.formatMatchedText(self.matchAllText.document(), match)
 
         self.matchNumberBox.setRange(1, i + 1)
         self.matchNumberBox.valueChanged.emit(self.matchNumberBox.value())
@@ -79,32 +94,16 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
     def on_match_number_change(self, match_number):
         # Set default format on the whole text before highlighting the selected
         # match.
-        cursor = QTextCursor(self.matchText.document())
+        document = self.matchText.document()
+        cursor = QTextCursor(document)
         cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
         cursor.setCharFormat(QTextCharFormat())
 
-
-        # TODO: this needs to be refactored with the on_compute_regex() method
-        # to avoid duplication.
-        regex   = str(self.regexText.toPlainText().toUtf8())
-        search  = str(self.searchText.toPlainText().toUtf8())
-        r = re.compile(regex)
-        for i, match in enumerate(r.finditer(search)):
-            if i+1 != match_number:
-                continue
-
-            format = QTextCharFormat()
-            format.setForeground(QColor('blue'))
-
-            cursor = QTextCursor(self.matchText.document())
-            cursor.setPosition(match.start())
-            cursor.movePosition(
-                QTextCursor.NextCharacter,
-                QTextCursor.KeepAnchor,
-                match.end() - match.start())
-            cursor.setCharFormat(format)
-
-            break
+        search = self.getSearchText()
+        for i, match in enumerate(self.regex.finditer(search)):
+            if i + 1 == match_number:
+                self.formatMatchedText(document, match)
+                break
 
 
 def run(args=None):
