@@ -26,6 +26,16 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.groupsView.setModel(
             model.SimpleTableModel(["Group Name", "Match"]))
 
+        # Read-only mapping to explain what each flags do
+        self.flagsRelationships = {
+            self.dotAllFlag     : re.DOTALL,
+            self.ignoreCaseFlag : re.IGNORECASE,
+            self.localeFlag     : re.LOCALE,
+            self.multiLineFlag  : re.MULTILINE,
+            self.unicodeFlag    : re.UNICODE,
+            self.verboseFlag    : re.VERBOSE,
+        }
+
         self.connectActions()
 
     def setupUi(self, *args, **kwargs):
@@ -48,6 +58,9 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         # Connect input widgets to update the GUI when their text change
         for widget in [self.regexText, self.searchText, self.replaceText]:
             widget.textChanged.connect(self.onComputeRegex)
+
+        for widget in self.flagsRelationships:
+            widget.stateChanged.connect(self.onComputeRegex)
 
         self.replaceText.textChanged.connect(self.onReplaceChange)
 
@@ -110,6 +123,16 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.statusbar.showMessage(
             "Pattern matches (found %d match)" % nbMatches)
 
+    def getRegexFlags(self):
+        """Return the flags set for the regex"""
+
+        flags = 0
+        for flag, value in self.flagsRelationships.iteritems():
+            if flag.isChecked():
+                flags |= value
+
+        return flags
+
     def onComputeRegex(self):
         regex   = str(self.regexText.toPlainText().toUtf8())
         search  = self.getSearchText()
@@ -119,8 +142,10 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
                 "Enter a regular expression and a string to match against",
                 'warning')
 
+        flags = self.getRegexFlags()
+
         try:
-            self.regex = re.compile(regex)
+            self.regex = re.compile(regex, flags)
         except (re.error, IndexError), e:
             # IndexError occured if the regex is "(?P<>)"
             return self.invalidRegex.emit(e.args[0], 'error')
