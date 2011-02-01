@@ -28,12 +28,13 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         self.connectActions()
 
+    def setupUi(self, *args, **kwargs):
+        super(KodosMainWindow, self).setupUi(*args, **kwargs)
+
         # Trigger the textChanged signal
         for widget in [self.regexText, self.searchText, self.replaceText]:
             widget.setPlainText('')
 
-    def setupUi(self, *args, **kwargs):
-        super(KodosMainWindow, self).setupUi(*args, **kwargs)
         self.statusbar = widgets.StatusBar(self._statusbar)
         self.labelReplace.hide()
         self.replaceNumberBox.hide()
