@@ -5,7 +5,7 @@ from PyQt4 import QtCore
 from PyQt4.QtGui import QApplication, QMainWindow
 from PyQt4.QtGui import QTextCursor, QTextCharFormat, QColor
 
-from kodos import widgets
+from kodos import widgets, model
 from kodos.ui.ui_main import Ui_MainWindow
 
 
@@ -23,6 +23,8 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.regex = None
         self.matchFormat = QTextCharFormat()
         self.matchFormat.setForeground(QColor('blue'))
+        self.groupsView.setModel(
+            model.SimpleTableModel(["Group Name", "Match"]))
 
         self.connectActions()
 
@@ -62,6 +64,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         cursor.setCharFormat(self.matchFormat)
 
     def onInvalidRegex(self, message, indicator):
+        self.groupsView.model().clear()
         self.matchText.setPlainText("")
         self.matchAllText.setPlainText("")
         self.matchNumberBox.setDisabled(True)
@@ -121,8 +124,24 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         search = self.getSearchText()
         for i, match in enumerate(self.regex.finditer(search)):
             if i + 1 == matchNumber:
-                self.formatMatchedText(document, match)
                 break
+        else:
+            assert False, ("We didn't find a match?! (RE=%r, text=%r" %
+                           (self.regex.pattern, search))
+
+        self.formatMatchedText(document, match)
+
+        model = self.groupsView.model()
+        model.clear()
+
+        # Create a reversed self.regex.groupindex dictionnary
+        groupsIndexes = dict((v, k)
+                             for (k, v) in self.regex.groupindex.iteritems())
+
+        for i in range(1, self.regex.groups + 1):
+            groupName = groupsIndexes.get(i, "")
+            groupValue = match.group(i)
+            model.append((groupName, groupValue))
 
 
 def run(args=None):
