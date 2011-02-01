@@ -34,7 +34,8 @@ class StatusBar(object):
         The indicator can be one of: ok, warning or error
         """
 
-        if tag not in self.indicators:
-            raise ValueError("Unknow status bar tag: %s" % tag)
+        try:
+            self.image_indicator.setPixmap(self.indicators[str(tag)])
+        except KeyError:
+            raise ValueError("Unknow status bar tag: %r" % tag)
 
-        self.image_indicator.setPixmap(self.indicators[tag])
