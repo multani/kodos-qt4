@@ -102,7 +102,8 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         try:
             self.regex = re.compile(regex)
-        except re.error, e:
+        except (re.error, IndexError), e:
+            # IndexError occured if the regex is "(?P<>)"
             return self.invalidRegex.emit(e.args[0], 'error')
 
         match = self.regex.search(search)
