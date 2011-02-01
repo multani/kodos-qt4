@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
-    <height>660</height>
+    <width>614</width>
+    <height>710</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -139,6 +139,32 @@
            <widget class="QSpinBox" name="matchNumberBox"/>
           </item>
           <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelReplace">
+            <property name="text">
+             <string>Replace Number</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="replaceNumberBox"/>
+          </item>
+          <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -237,8 +263,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>698</width>
-     <height>21</height>
+     <width>614</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

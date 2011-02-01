@@ -35,6 +35,9 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
     def setupUi(self, *args, **kwargs):
         super(KodosMainWindow, self).setupUi(*args, **kwargs)
         self.statusbar = widgets.StatusBar(self._statusbar)
+        self.labelReplace.hide()
+        self.replaceNumberBox.hide()
+        self.replaceNumberBox.setRange(0 ,0)
 
     def connectActions(self):
 
@@ -45,12 +48,20 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         for widget in [self.regexText, self.searchText, self.replaceText]:
             widget.textChanged.connect(self.onComputeRegex)
 
+        self.replaceText.textChanged.connect(self.onReplaceChange)
+
         self.matchNumberBox.valueChanged.connect(self.onMatchNumberChange)
+        self.replaceNumberBox.valueChanged.connect(self.onReplaceNumberChange)
 
     def getSearchText(self):
-        """Shortcut to retrieve the serach text"""
+        """Shortcut to retrieve the search text"""
 
         return str(self.searchText.toPlainText().toUtf8())
+
+    def getReplaceText(self):
+        """Shortcut to retrieve the replace text"""
+
+        return str(self.replaceText.toPlainText().toUtf8())
 
     def formatMatchedText(self, document, match):
         """Format the matched text in a document"""
@@ -67,7 +78,9 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.groupsView.model().clear()
         self.matchText.setPlainText("")
         self.matchAllText.setPlainText("")
-        self.matchNumberBox.setDisabled(True)
+        self.replaceResultText.setPlainText("")
+        self.matchNumberBox.setEnabled(False)
+        self.replaceNumberBox.setEnabled(False)
 
         self.statusbar.showMessage(message)
         self.statusbar.setIndicator(indicator)
@@ -78,6 +91,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.matchText.setPlainText(search)
         self.matchAllText.setPlainText(search)
         self.matchNumberBox.setEnabled(True)
+        self.replaceNumberBox.setEnabled(True)
 
         # Compute results in the various result panels
         for i, match in enumerate(self.regex.finditer(search)):
@@ -87,6 +101,10 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.matchNumberBox.setRange(1, nbMatches)
         self.matchNumberBox.valueChanged.emit(self.matchNumberBox.value())
 
+        # 0 means replace everything
+        self.replaceNumberBox.setRange(0, nbMatches)
+        self.replaceNumberBox.valueChanged.emit(self.replaceNumberBox.value())
+
         self.statusbar.setIndicator('ok')
         self.statusbar.showMessage(
             "Pattern matches (found %d match)" % nbMatches)
@@ -94,7 +112,6 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
     def onComputeRegex(self):
         regex   = str(self.regexText.toPlainText().toUtf8())
         search  = self.getSearchText()
-        replace = str(self.replaceText.toPlainText().toUtf8())
 
         if regex == "" or search == "":
             return self.invalidRegex.emit(
@@ -144,6 +161,26 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
             groupName = groupsIndexes.get(i, "")
             groupValue = match.group(i)
             model.append((groupName, groupValue))
+
+    def onReplaceChange(self):
+        replace = str(self.replaceText.toPlainText().toUtf8())
+
+        if replace:
+            self.labelReplace.show()
+            self.replaceNumberBox.show()
+            self.replaceResultText.setEnabled(True)
+        else:
+            self.labelReplace.hide()
+            self.replaceNumberBox.hide()
+            self.replaceResultText.setPlainText("")
+            self.replaceResultText.setEnabled(False)
+
+    def onReplaceNumberChange(self, replaceNumber):
+        text = self.regex.sub(
+            self.getReplaceText(),
+            self.getSearchText(),
+            replaceNumber)
+        self.replaceResultText.setPlainText(text)
 
 
 def run(args=None):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/main.ui'
 #
-# Created: Wed Oct  6 18:14:32 2010
+# Created: Tue Feb  1 20:47:38 2011
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(698, 660)
+        MainWindow.resize(614, 710)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.centralwidget)
@@ -84,8 +84,16 @@ class Ui_MainWindow(object):
         self.matchNumberBox = QtGui.QSpinBox(self.centralwidget)
         self.matchNumberBox.setObjectName("matchNumberBox")
         self.horizontalLayout.addWidget(self.matchNumberBox)
-        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        spacerItem1 = QtGui.QSpacerItem(50, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
+        self.labelReplace = QtGui.QLabel(self.centralwidget)
+        self.labelReplace.setObjectName("labelReplace")
+        self.horizontalLayout.addWidget(self.labelReplace)
+        self.replaceNumberBox = QtGui.QSpinBox(self.centralwidget)
+        self.replaceNumberBox.setObjectName("replaceNumberBox")
+        self.horizontalLayout.addWidget(self.replaceNumberBox)
+        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName("tabWidget")
@@ -138,7 +146,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.addLayout(self.verticalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 698, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 614, 22))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtGui.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -258,6 +266,7 @@ class Ui_MainWindow(object):
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_6), QtGui.QApplication.translate("MainWindow", "Search String", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_7), QtGui.QApplication.translate("MainWindow", "Replace String", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Match Number", None, QtGui.QApplication.UnicodeUTF8))
+        self.labelReplace.setText(QtGui.QApplication.translate("MainWindow", "Replace Number", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Group", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("MainWindow", "Match", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QtGui.QApplication.translate("MainWindow", "Match All", None, QtGui.QApplication.UnicodeUTF8))
