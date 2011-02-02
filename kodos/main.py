@@ -2,53 +2,55 @@ import re
 import sys
 
 from PyQt4 import QtCore
+from PyQt4 import uic
 from PyQt4.QtGui import QApplication, QMainWindow
 from PyQt4.QtGui import QTextCursor, QTextCharFormat, QColor
 
-from kodos import widgets, model
-from kodos.ui.ui_main import Ui_MainWindow
+from kodos import model
+from kodos import widgets
 
 
-
-class KodosMainWindow(QMainWindow, Ui_MainWindow):
+class KodosMainWindow(QtCore.QObject):
 
     validRegex = QtCore.pyqtSignal()
     invalidRegex = QtCore.pyqtSignal(str, str)
 
-    def __init__(self, parent=None):
-        super(KodosMainWindow, self).__init__(parent)
-        self.setupUi(self)
+    def __init__(self):
+        super(KodosMainWindow, self).__init__()
+        self.ui = uic.loadUi('main.ui')
+        self.setupUi()
 
         # This is the current regex object
         self.regex = None
         self.matchFormat = QTextCharFormat()
         self.matchFormat.setForeground(QColor('blue'))
-        self.groupsView.setModel(
+        self.ui.groupsView.setModel(
             model.SimpleTableModel(["Group Name", "Match"]))
 
         # Read-only mapping to explain what each flags do
         self.flagsRelationships = {
-            self.dotAllFlag     : re.DOTALL,
-            self.ignoreCaseFlag : re.IGNORECASE,
-            self.localeFlag     : re.LOCALE,
-            self.multiLineFlag  : re.MULTILINE,
-            self.unicodeFlag    : re.UNICODE,
-            self.verboseFlag    : re.VERBOSE,
+            self.ui.dotAllFlag     : re.DOTALL,
+            self.ui.ignoreCaseFlag : re.IGNORECASE,
+            self.ui.localeFlag     : re.LOCALE,
+            self.ui.multiLineFlag  : re.MULTILINE,
+            self.ui.unicodeFlag    : re.UNICODE,
+            self.ui.verboseFlag    : re.VERBOSE,
         }
 
         self.connectActions()
 
-    def setupUi(self, *args, **kwargs):
-        super(KodosMainWindow, self).setupUi(*args, **kwargs)
+    def show(self):
+        self.ui.show()
 
+    def setupUi(self, *args, **kwargs):
         # Trigger the textChanged signal
-        for widget in [self.regexText, self.searchText, self.replaceText]:
+        for widget in [self.ui.regexText, self.ui.searchText, self.ui.replaceText]:
             widget.setPlainText('')
 
-        self.statusbar = widgets.StatusBar(self._statusbar)
-        self.labelReplace.hide()
-        self.replaceNumberBox.hide()
-        self.replaceNumberBox.setRange(0 ,0)
+        self.statusbar = widgets.StatusBar(self.ui._statusbar)
+        self.ui.labelReplace.hide()
+        self.ui.replaceNumberBox.hide()
+        self.ui.replaceNumberBox.setRange(0 ,0)
 
     def connectActions(self):
 
@@ -56,26 +58,26 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.invalidRegex.connect(self.onInvalidRegex)
 
         # Connect input widgets to update the GUI when their text change
-        for widget in [self.regexText, self.searchText, self.replaceText]:
+        for widget in [self.ui.regexText, self.ui.searchText, self.ui.replaceText]:
             widget.textChanged.connect(self.onComputeRegex)
 
         for widget in self.flagsRelationships:
             widget.stateChanged.connect(self.onComputeRegex)
 
-        self.replaceText.textChanged.connect(self.onReplaceChange)
+        self.ui.replaceText.textChanged.connect(self.onReplaceChange)
 
-        self.matchNumberBox.valueChanged.connect(self.onMatchNumberChange)
-        self.replaceNumberBox.valueChanged.connect(self.onReplaceNumberChange)
+        self.ui.matchNumberBox.valueChanged.connect(self.onMatchNumberChange)
+        self.ui.replaceNumberBox.valueChanged.connect(self.onReplaceNumberChange)
 
     def getSearchText(self):
         """Shortcut to retrieve the search text"""
 
-        return str(self.searchText.toPlainText().toUtf8())
+        return str(self.ui.searchText.toPlainText().toUtf8())
 
     def getReplaceText(self):
         """Shortcut to retrieve the replace text"""
 
-        return str(self.replaceText.toPlainText().toUtf8())
+        return str(self.ui.replaceText.toPlainText().toUtf8())
 
     def formatMatchedText(self, document, match):
         """Format the matched text in a document"""
@@ -89,12 +91,12 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         cursor.setCharFormat(self.matchFormat)
 
     def onInvalidRegex(self, message, indicator):
-        self.groupsView.model().clear()
-        self.matchText.setPlainText("")
-        self.matchAllText.setPlainText("")
-        self.replaceResultText.setPlainText("")
-        self.matchNumberBox.setEnabled(False)
-        self.replaceNumberBox.setEnabled(False)
+        self.ui.groupsView.model().clear()
+        self.ui.matchText.setPlainText("")
+        self.ui.matchAllText.setPlainText("")
+        self.ui.replaceResultText.setPlainText("")
+        self.ui.matchNumberBox.setEnabled(False)
+        self.ui.replaceNumberBox.setEnabled(False)
 
         self.statusbar.showMessage(message)
         self.statusbar.setIndicator(indicator)
@@ -102,22 +104,22 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
     def onValidRegex(self):
         search  = self.getSearchText()
 
-        self.matchText.setPlainText(search)
-        self.matchAllText.setPlainText(search)
-        self.matchNumberBox.setEnabled(True)
-        self.replaceNumberBox.setEnabled(True)
+        self.ui.matchText.setPlainText(search)
+        self.ui.matchAllText.setPlainText(search)
+        self.ui.matchNumberBox.setEnabled(True)
+        self.ui.replaceNumberBox.setEnabled(True)
 
         # Compute results in the various result panels
         for i, match in enumerate(self.regex.finditer(search)):
-            self.formatMatchedText(self.matchAllText.document(), match)
+            self.formatMatchedText(self.ui.matchAllText.document(), match)
 
         nbMatches = i + 1
-        self.matchNumberBox.setRange(1, nbMatches)
-        self.matchNumberBox.valueChanged.emit(self.matchNumberBox.value())
+        self.ui.matchNumberBox.setRange(1, nbMatches)
+        self.ui.matchNumberBox.valueChanged.emit(self.ui.matchNumberBox.value())
 
         # 0 means replace everything
-        self.replaceNumberBox.setRange(0, nbMatches)
-        self.replaceNumberBox.valueChanged.emit(self.replaceNumberBox.value())
+        self.ui.replaceNumberBox.setRange(0, nbMatches)
+        self.ui.replaceNumberBox.valueChanged.emit(self.ui.replaceNumberBox.value())
 
         self.statusbar.setIndicator('ok')
         self.statusbar.showMessage(
@@ -134,7 +136,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         return flags
 
     def onComputeRegex(self):
-        regex   = str(self.regexText.toPlainText().toUtf8())
+        regex   = str(self.ui.regexText.toPlainText().toUtf8())
         search  = self.getSearchText()
 
         if regex == "" or search == "":
@@ -161,7 +163,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
     def onMatchNumberChange(self, matchNumber):
         # Set default format on the whole text before highlighting the selected
         # match.
-        document = self.matchText.document()
+        document = self.ui.matchText.document()
         cursor = QTextCursor(document)
         cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
         cursor.setCharFormat(QTextCharFormat())
@@ -176,7 +178,7 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
 
         self.formatMatchedText(document, match)
 
-        model = self.groupsView.model()
+        model = self.ui.groupsView.model()
         model.clear()
 
         # Create a reversed self.regex.groupindex dictionnary
@@ -189,24 +191,24 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
             model.append((groupName, groupValue))
 
     def onReplaceChange(self):
-        replace = str(self.replaceText.toPlainText().toUtf8())
+        replace = str(self.ui.replaceText.toPlainText().toUtf8())
 
         if replace:
-            self.labelReplace.show()
-            self.replaceNumberBox.show()
-            self.replaceResultText.setEnabled(True)
+            self.ui.labelReplace.show()
+            self.ui.replaceNumberBox.show()
+            self.ui.replaceResultText.setEnabled(True)
         else:
-            self.labelReplace.hide()
-            self.replaceNumberBox.hide()
-            self.replaceResultText.setPlainText("")
-            self.replaceResultText.setEnabled(False)
+            self.ui.labelReplace.hide()
+            self.ui.replaceNumberBox.hide()
+            self.ui.replaceResultText.setPlainText("")
+            self.ui.replaceResultText.setEnabled(False)
 
     def onReplaceNumberChange(self, replaceNumber):
         text = self.regex.sub(
             self.getReplaceText(),
             self.getSearchText(),
             replaceNumber)
-        self.replaceResultText.setPlainText(text)
+        self.ui.replaceResultText.setPlainText(text)
 
 
 def run(args=None):
