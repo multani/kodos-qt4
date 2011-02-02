@@ -123,6 +123,8 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
         self.statusbar.showMessage(
             "Pattern matches (found %d match)" % nbMatches)
 
+        self.populateSampleCode()
+
     def getRegexFlags(self):
         """Return the flags set for the regex"""
 
@@ -207,6 +209,36 @@ class KodosMainWindow(QMainWindow, Ui_MainWindow):
             self.getSearchText(),
             replaceNumber)
         self.replaceResultText.setPlainText(text)
+
+    def populateSampleCode(self):
+
+        flagsValues = {
+            self.dotAllFlag     : ('re.DOTALL', 's'),
+            self.ignoreCaseFlag : ('re.IGNORECASE', 'i'),
+            self.localeFlag     : ('re.LOCALE', 'L'),
+            self.multiLineFlag  : ('re.MULTILINE', 'm'),
+            self.unicodeFlag    : ('re.UNICODE', 'u'),
+            self.verboseFlag    : ('re.VERBOSE', 'x'),
+        }
+
+        code = []
+        code += ["import re", "", "# common variables", ""]
+        code.append('rawstr = r"""%s"""' % self.regex.pattern)
+        code.append('embedded_rawstr = r"""%s"""' % XX)
+matchstr = """foo bar"""
+
+# method 1: using a compile object
+compile_obj = re.compile(rawstr)
+match_obj = compile_obj.search(matchstr)
+
+# method 2: using search function (w/ external flags)
+match_obj = re.search(rawstr, matchstr)
+
+# method 3: using search function (w/ embedded flags)
+match_obj = re.search(embedded_rawstr, matchstr)
+
+# Replace string
+newstr = compile_obj.subn('f', 1)
 
 
 def run(args=None):
